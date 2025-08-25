@@ -14,7 +14,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3003);
-  console.log(`App running on port 3003`);
+  await app.listen(process.env.PORT);
+  console.log(`App running on port ${process.env.PORT}`);
 }
 bootstrap();
