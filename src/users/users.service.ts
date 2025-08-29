@@ -6,6 +6,8 @@ import { RegisterUserDto } from './dto/register-user.dto';
 
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +15,7 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
         private readonly repository: Repository<User>,
-        // private readonly jwt: JwtService
+        private readonly jwt: JwtService
     ) {}
 
     async create(registerUser: RegisterUserDto) {
@@ -31,10 +33,11 @@ export class UsersService {
 
             return {
                 ...user,
-                // token: this.getJwtToken({id: user.id})
+                token: this.getJwtToken({id: user.id})
             }
 
         } catch (error) {
+            console.error(error)
             // this.handleError(err);
         }
     }
@@ -62,16 +65,17 @@ export class UsersService {
 
             return {
                 ...newUser,
-                // token: this.getJwtToken({id: newUser.id})
+                token: this.getJwtToken({id: newUser.id})
             };
         } catch (error) {
             console.error(error)
         }
+    }
 
 
-
-
-
+    private getJwtToken( payload: JwtPayload ) {
+        const token = this.jwt.sign(payload);
+        return token;
     }
 
 }
