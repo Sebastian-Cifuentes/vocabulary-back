@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -21,6 +21,9 @@ export class UsersService {
     try {
       const { password, ...userData } = registerUser;
 
+      const exists = await this.repository.findOne({ where: { email: userData.email } });
+      if (exists) throw new BadRequestException('Email already registered');
+
       const user = this.repository.create({
         ...userData,
         password: bcrypt.hashSync(password, 10),
@@ -29,12 +32,13 @@ export class UsersService {
       await this.repository.save(user);
       delete user.password;
 
+
       return {
         ...user,
         token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
-      console.error(error);
+      return error;
       // this.handleError(err);
     }
   }
@@ -51,7 +55,7 @@ export class UsersService {
         select: { email: true, username: true, password: true, id: true },
       });
 
-      if (!user)
+      if (!newUser)
         throw new UnauthorizedException('Not valid credentials (email)');
 
       if (!bcrypt.compareSync(password, newUser.password))
@@ -64,8 +68,12 @@ export class UsersService {
         token: this.getJwtToken({ id: newUser.id }),
       };
     } catch (error) {
-      console.error(error);
+      return error;
     }
+  }
+
+  checkAuthStatus(payload: JwtPayload) {
+    return this.getJwtToken(payload);
   }
 
   private getJwtToken(payload: JwtPayload) {
