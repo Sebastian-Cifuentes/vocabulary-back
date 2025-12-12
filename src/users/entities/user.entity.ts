@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Word } from "src/words/entities/word.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -22,5 +23,8 @@ export class User {
         default: true
     })
     isActive: boolean;
+
+    @OneToMany(() => Word, word => word.user)
+    words: Word[]
 
 }
