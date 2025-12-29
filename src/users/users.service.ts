@@ -38,7 +38,7 @@ export class UsersService {
         token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
-      return error;
+      throw error;
       // this.handleError(err);
     }
   }
@@ -68,7 +68,7 @@ export class UsersService {
         token: this.getJwtToken({ id: newUser.id }),
       };
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 

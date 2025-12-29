@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Word } from './entities/word.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +6,8 @@ import { WordDto } from './dto/word.dto';
 
 @Injectable()
 export class WordsService {
+
+    private readonly BASE_DICTIONARY_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 
     constructor(
         @InjectRepository(Word)
@@ -20,7 +22,7 @@ export class WordsService {
                 word
             }
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
@@ -31,14 +33,25 @@ export class WordsService {
                 words
             }
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
     async create(word: WordDto) {
         try {
+            word.name = word.name.trim().toLowerCase();
+            const res = await fetch(`${this.BASE_DICTIONARY_URL}/${word.name}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new BadRequestException({
+                    message: 'This word does not exist',
+                    suggestions: data?.suggestion ?? []
+                });
+            }
+
             const exists = await this.repository.findOne({where: { name: word.name }})
-            if (exists) throw new BadRequestException('This word already existed');
+            if (exists) throw new ConflictException('This word already existed');
 
             const newWord = this.repository.create({
                 ...word
@@ -52,7 +65,7 @@ export class WordsService {
             }
 
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
@@ -60,7 +73,7 @@ export class WordsService {
         try {
             await this.repository.delete(id)
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
@@ -80,7 +93,7 @@ export class WordsService {
             }
 
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
