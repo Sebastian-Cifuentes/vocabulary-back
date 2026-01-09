@@ -3,6 +3,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WordsModule } from './words/words.module';
+import { WordChatModule } from './word-chat/word-chat.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WordsModule } from './words/words.module';
       }),
     }),
     WordsModule,
+    WordChatModule
   ],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { WordChat } from "src/word-chat/entities/word-chat.entity";
+import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Word {
@@ -11,4 +12,7 @@ export class Word {
 
     @ManyToOne(() => User, user => user.words)
     user: User;
+
+    @OneToOne(() => WordChat, wordchat => wordchat.word)
+    wordchat: WordChat;
 }
